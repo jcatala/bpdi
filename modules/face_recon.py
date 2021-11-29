@@ -1,6 +1,5 @@
 import cv2 as cv
 
-
 class Face:
 
     def __init__(self):

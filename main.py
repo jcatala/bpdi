@@ -1,6 +1,8 @@
 #!/usr/bin/venv python3
 import modules.face_recon as face_recon
+import modules.face as face
 import cv2 as cv
+import time
 
 def detectAndDisplay(frame,face):
     frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
@@ -23,16 +25,48 @@ def detectAndDisplay(frame,face):
 
 if __name__ == "__main__":
     face = face_recon.Face()
-    cap = cv.VideoCapture("./data/videos/p1.mp4")
+    cap = cv.VideoCapture(0)#cv.VideoCapture("./data/videos/p1.mp4")
     while(cap.isOpened()):
         ret, frame = cap.read()
         if frame is None:
             break
         print(frame,ret)
         detectAndDisplay(frame, face)
-        if cv.waitKey(10) == 27:
+        if cv.waitKey(1) == 27: ## ESC
+            break
+
+    face = FacePoints(dedector_type='haar')
+
+    capture = cv2.VideoCapture(0)
+
+    while capture.isOpened():
+        # getting a frame
+        ret, frame = capture.read()
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        vis = frame.copy()
+
+        corners = face.get_points_pipeline(gray)
+
+        if corners is not None:
+            corners = np.int0(corners)
+            for i in corners:
+                xc,yc = i.ravel()
+                cv2.circle(vis,(xc,yc),3,255,-1)
+
+            
+        # Get rectangles
+        x,y,w,h = face.face_rectange
+        xx,yy,ww,hh = face.eyes_rectangle
+
+        # Draw rectangle on face
+        cv2.rectangle(vis, (x,y), (x+w,y+h),(0,255,0),2)
+        cv2.rectangle(vis, (xx,yy), (xx+ww,yy+hh),(0,0,255),2)
+
+        # Show
+        cv2.imshow('face track', vis)
+
+        if cv2.waitKey(1) == 27:
             break
 
     cap.release()
     cv.destroyAllWindows()
-    print("deadbeef")
